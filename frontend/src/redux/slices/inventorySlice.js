@@ -1,8 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-export const fetchInventory = createAsyncThunk('inventory/fetch', async () => {
-  const response = await axios.get('http://localhost:5000/api/inventory');
+export const fetchInventory = createAsyncThunk('inventory/fetch', async ({ make, duration }) => {
+  const response = await axios.get('http://localhost:5000/api/inventory', {
+    params: {
+      make: make || '',
+      duration: duration || 'last_month',
+    },
+  });
   return response.data;
 });
 

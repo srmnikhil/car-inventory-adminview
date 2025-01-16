@@ -9,6 +9,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { format } from "date-fns"; // Import date-fns format function
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -28,15 +29,16 @@ const InventoryCountChart = ({ data }) => {
     // Iterate over the data
     data.forEach((item) => {
       const { timestamp, condition } = item;
-      const date = timestamp.split(" ")[0]; // Extract the date from timestamp (YYYY-MM-DD)
+      const date = new Date(timestamp); // Convert the timestamp to a Date object
+      const formattedDate = format(date, "dd/MM/yyyy"); // Format the date as "DD/MM/YYYY"
 
-      if (!labels.includes(date)) {
-        labels.push(date); // Add unique dates to labels
+      if (!labels.includes(formattedDate)) {
+        labels.push(formattedDate); // Add unique formatted dates to labels
       }
 
       // Initialize all categories to 0 for each date
       Object.keys(categorizedData).forEach((key) => {
-        const index = labels.indexOf(date);
+        const index = labels.indexOf(formattedDate);
         if (categorizedData[key][index] === undefined) {
           categorizedData[key][index] = 0;
         }
@@ -44,7 +46,7 @@ const InventoryCountChart = ({ data }) => {
 
       // Increment the count based on condition
       if (categorizedData[condition]) {
-        const index = labels.indexOf(date);
+        const index = labels.indexOf(formattedDate);
         categorizedData[condition][index] = (categorizedData[condition][index] || 0) + 1;
       }
     });
@@ -91,10 +93,10 @@ const InventoryCountChart = ({ data }) => {
 
   return (
     <Box sx={{ padding: "20px", backgroundColor: "#f5f5f5", borderRadius: "8px" }}>
-      <Typography variant="h6" sx={{ fontWeight: "bold", marginBottom: "10px" }}>
-        Inventory Count:
-      </Typography>
       <Box sx={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
+        <Typography variant="h6" sx={{ fontWeight: "bold", marginBottom: "10px" }}>
+          Inventory Count:
+        </Typography>
         {["new", "used", "cpo"].map((filter) => (
           <Button
             key={filter}
@@ -106,7 +108,7 @@ const InventoryCountChart = ({ data }) => {
           </Button>
         ))}
       </Box>
-      <Bar data={inventoryData} options={options} style={{backgroundColor:"white", borderRadius:"10px", padding:"2rem"}}/>
+      <Bar data={inventoryData} options={options} style={{ backgroundColor: "white", borderRadius: "10px", padding: "2rem" }} />
     </Box>
   );
 };

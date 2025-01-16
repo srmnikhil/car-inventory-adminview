@@ -9,6 +9,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { format } from "date-fns"; // Import date-fns format function
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -34,14 +35,15 @@ const AverageMsrpChart = ({ data }) => {
     data.forEach((item) => {
       const { timestamp, condition, price } = item;
       const date = timestamp.split(" ")[0]; // Extract the date from timestamp (YYYY-MM-DD)
+      const formattedDate = format(date, "dd/MM/yyyy"); // Format the date as "DD/MM/YYYY"
 
-      if (!labels.includes(date)) {
-        labels.push(date); // Add unique dates to labels
+      if (!labels.includes(formattedDate)) {
+        labels.push(formattedDate); // Add unique dates to labels
       }
 
       // Initialize all categories to 0 for each date
       Object.keys(categorizedData).forEach((key) => {
-        const index = labels.indexOf(date);
+        const index = labels.indexOf(formattedDate);
         if (categorizedData[key][index] === undefined) {
           categorizedData[key][index] = 0;
           countData[key][index] = 0;
@@ -50,7 +52,7 @@ const AverageMsrpChart = ({ data }) => {
 
       // Calculate total MSRP and count for averaging
       if (categorizedData[condition]) {
-        const index = labels.indexOf(date);
+        const index = labels.indexOf(formattedDate);
         categorizedData[condition][index] += parseFloat(price); // Sum up MSRP
         countData[condition][index] += 1; // Increment count
       }
@@ -119,10 +121,10 @@ const AverageMsrpChart = ({ data }) => {
 
   return (
     <Box sx={{ padding: "20px", backgroundColor: "#f5f5f5", borderRadius: "8px" }}>
-      <Typography variant="h6" sx={{ fontWeight: "bold", marginBottom: "10px" }}>
-        Average MSRP in USD:
-      </Typography>
       <Box sx={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
+        <Typography variant="h6" sx={{ fontWeight: "bold", marginBottom: "10px" }}>
+          Average MSRP in USD:
+        </Typography>
         {["new", "used", "cpo"].map((filter) => (
           <Button
             key={filter}
@@ -134,7 +136,7 @@ const AverageMsrpChart = ({ data }) => {
           </Button>
         ))}
       </Box>
-      <Bar data={msrpData} options={options} style={{backgroundColor:"white", borderRadius:"10px", padding:"2rem"}}/>
+      <Bar data={msrpData} options={options} style={{ backgroundColor: "white", borderRadius: "10px", padding: "2rem" }} />
     </Box>
   );
 };
